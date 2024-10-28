@@ -1,30 +1,149 @@
 package clasesDAO;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Scanner;
+
+import modelo_clases.Activo;
 
 public class ActivoDAO {
 	
+	
+	/* Preguntar si la creacion de las tablas ACTIVO_FIAT y ACTIVO_CRIPTO van aca
+	 * o si van directamente en el main
+	 */
 	
     
     //constructor
 	public ActivoDAO() {
 		
 	}
+	
+	public static void creacionTablas(Connection connection) throws SQLException {
+	    Statement stmt;
+	    stmt = connection.createStatement();
+	   
+		//Creo tabla ActivoCripto
+		String sql = "CREATE TABLE ACTIVO_CRIPTO" 
+		+ "(" 
+		+ " NOMENCLATURA VARCHAR(10)  PRIMARY KEY     NOT NULL, "
+		+ " CANTIDAD	REAL    NOT NULL " + ")";
+		stmt.executeUpdate(sql);
+		
+		//Creo tabla ActivoFiat
+		sql = "CREATE TABLE ACTIVO_FIAT" 
+		+ "(" 
+		+ " NOMENCLATURA VARCHAR(10)  PRIMARY KEY     NOT NULL, "
+		+ " CANTIDAD	REAL    NOT NULL " + ")";
+		stmt.executeUpdate(sql);
+		
+		//Creo tabla Transaccion
+		sql = "CREATE TABLE TRANSACCION" 
+		+ "(" 
+		+ " RESUMEN VARCHAR(1000)   NOT NULL, "
+		+ " FECHA_HORA		DATETIME  NOT NULL " + ")";
+		stmt.executeUpdate(sql);
+		stmt.close();
+		
+	}
+	
+	/*
+	 * El metodo generarMisActivos esta pensado para que tenga un intento para creacion, se le pide que ingrese los datos hasta que confirme
+	 * que escribio todo bien, si confirma, se busca la existencia de la moneda en la DB, si existe se procede con el metodo, si no informa
+	 * error y se debe volver a seleccionar el metodo en el menu de opciones.
+	 */
+	
+	
+	 /*
+	  * Si la lectura de datos se hace desde el main, en realidad lo primero que se hace una vez que se llama al metodo es ver si existe, si
+	  * existe, se procede con el metodo, si no, informa error y termina el metodo. La confirmacion de los datos por parte del usuario en este
+	  * caso tambien se haria en el main y se le pasarian los datos como parametro a la funcion 
+	  * 
+	  *
+	  */
+	
+	public void generarMisActivos(Connection connection, String tipoA, String nom, double cant) throws SQLException {
+		
+		 /* Preguntar si todo esta parte de la lectura por pantalla no deberia ir en el main, 
+		  * y que desde alli se llame aun metodo que cheque en la DB de monedas EXISTENTES 
+		  * si existe o no esa moneda y que al devolver true la cree llamando a los metodos
+		  *  para introducirlos en sus respectivas tablas
+		  */
+		  
+		// Abro la DB para chequear si la moneda existe		  
+		  	Statement stmt;
+		  	String sql= "SELECT NOMENCLATURA, FROM ACTIVO_CRIPTO";
+		    ResultSet rs= stmt.executeQuery(sql);
+		    //Recorro tabla para ver si existe la moneda a generar como activo
+		    boolean existe=false;
+		    while ( (rs.next()) || (existe==false) ) {
+		    if ( rs.getString("NOMENCLATURA").equals(nom) ) // ??
+		    	existe=true;
+		    }
+		    
+		  //Si confirmo que existe, cargo el activo en la tabla DB correspondiente  
+		 if(existe) {
+				 System.out.println("Cargando activo...");
+		  		  if(tipoA.equals("CRIPTO")) {				  
+					  Activo ac= new Activo();					 
+					  ac.setNomenclatura(nom);					
+					  ac.setCantidad(cant);
+					  generarActivoCripto(connection, ac); // Esta bien hacer esto un metodo privado?
+		  		  }
+		  		  else if(tipoA.equals("FIAT")) {				  
+					  Activo af= new Activo();					  
+					  af.setNomenclatura(nom);						
+					  af.setCantidad(cant); 
+					  generarActivoFiat(connection, af); // Esta bien hacer esto un metodo privado?
+		  		  }
+		  		System.out.println("Activo cargado.");  
+		 }
+			 else {
+				 System.out.println("Activo no cargado.");
+			 }
+		 stmt.close();
+		 //Tengo que cerrar tambien la connection?
+	  }
+	  
+	  private void generarActivoFiat(Connection connection, Activo af) throws SQLException {	  
+		 
+		  PreparedStatement p_sent;
+		  String sql= "INSERT INTO ACTIVO_FIAT (NOMENCALTURA, CANTIDAD)"
+		  + " VALUES(?, ?)";				 
+		  p_sent = connection.prepareStatement(sql);
+		  p_sent.clearParameters(); // Opcional chat
+		  p_sent.setString(1, af.getNomenclatura());
+		  p_sent.setDouble(2, af.getCantidad());
+		  
+		 }
+	  
+	  private void generarActivoCripto(Connection connection,Activo ac) throws SQLException {
+		  PreparedStatement p_sent;
+		  String sql= "INSERT INTO ACTIVO_CRIPTO (NOMENCALTURA, CANTIDAD)"
+		  + " VALUES(?, ?)";				 
+		  p_sent = connection.prepareStatement(sql);
+		  p_sent.clearParameters(); // Opcional chat
+		  p_sent.setString(1, ac.getNomenclatura());
+		  p_sent.setDouble(2, ac.getCantidad());
+	  }
 
-
-	public void comprarCripto (Connection connection, String cripto, String fiat, double monto, ) {
+	  // Este es el que esta haciendo Emi
+	  
+	public void comprarCripto (Connection connection, String cripto, String fiat, double monto) {
     //cripto es la nomenclatura de la criptomoneda (BTC, etc)
 	//fiat es la nomenclatura de la FIAT (ARS, USD)
 	
 	Statement stmt;
-	stmt = connection.createStatement()
+	stmt = connection.createStatement();
 	
 	//obtengo de la tabla moneda el valor en dolares de la moneda "fiat" parametros
 	String sql= "SELECT VALOR_DOLAR, FROM moneda WHERE NOMBRE="fiat" "
 	//se ejecuta la consulta:
 	ResultSet rs= stmt.executeQuery(sql) ;
-    int conversionFiat_Dolar= rs.getInt("VALOR_DOLAR")
+    int conversionFiat_Dolar= rs.getInt("VALOR_DOLAR");
     		
     //obtengo de la tabla moneda el valor en dolares de la moneda "cripto" parametros
     sql= "SELECT VALOR_DOLAR, FROM moneda WHERE NOMBRE="cripto" "

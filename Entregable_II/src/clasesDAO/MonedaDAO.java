@@ -36,18 +36,7 @@ public class MonedaDAO {
 	+ " VOLATILIDAD	REAL     NULL, "
 	+ " STOCK	REAL     NULL "  + ")";
 	stmt.executeUpdate(sql);
-	//creo tabla Activo Cripto
-	sql = "CREATE TABLE ACTIVO_CRIPTO" 
-	+ "(" 
-	+ " NOMENCLATURA VARCHAR(10)  PRIMARY KEY     NOT NULL, "
-	+ " CANTIDAD	REAL    NOT NULL " + ")";
-	stmt.executeUpdate(sql);
-	//creo tabla Activo Fiat
-	sql = "CREATE TABLE ACTIVO_FIAT" 
-	+ "(" 
-	+ " NOMENCLATURA VARCHAR(10)  PRIMARY KEY     NOT NULL, "
-	+ " CANTIDAD	REAL    NOT NULL " + ")";
-	stmt.executeUpdate(sql);
+
 	//creo tabla Transaccion
 	sql = "CREATE TABLE TRANSACCION" 
 	+ "(" 

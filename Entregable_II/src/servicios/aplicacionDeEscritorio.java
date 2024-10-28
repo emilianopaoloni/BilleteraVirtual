@@ -5,9 +5,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-import clasesDAO.ActivoDAO;
-import clasesDAO.MonedaDAO;
-import modelo_clases.Moneda;
+import clasesDAO.*;
+import modelo_clases.*;
 
 
 public class aplicacionDeEscritorio {
@@ -28,7 +27,7 @@ public class aplicacionDeEscritorio {
 			 
 			//creo objetos DAO
 			 MonedaDAO mDAO = new MonedaDAO();
-			 //ActivoDAO aDAO = new ActivoDAO();
+			 ActivoDAO aDAO = new ActivoDAO();
 			 
 			//creo las tablas -------------> preguntar esto (le cambie el metodo a publico, en la filmina estaba privado) nose donde iria es metodo, en que clase
 			 //mDAO.creacionDeTablasEnBD(connection);
@@ -127,8 +126,30 @@ public class aplicacionDeEscritorio {
 	                	break;
 	                }
 	                case 5:{
-	                    // Llamar método generar activos
-	                   
+	                	char opt;
+	                	// Si las declaraba dentro del do-while me salia error
+	                	String tipoA;
+	                	String nom;
+	                	double cant;
+	                	do {
+	                		System.out.print("Tipo de activo a generar (FIAT/CRIPTO): ");
+	              		    tipoA = scanner.nextLine().toUpperCase();	              		  
+	              		    System.out.print("NOMENCLATURA: ");
+	              		    nom = scanner.nextLine().toUpperCase();	              		  
+	              		    System.out.print("CANTIDAD: ");
+	              		    cant= scanner.nextDouble();
+	              		   System.out.println("-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+	              		     System.out.println("Activo tipo " + tipoA);
+		        			 System.out.println("Nomenclatura: " + nom);
+		        			 System.out.println("Cantidad: " + cant);
+		        			 System.out.println("Activo "+tipoA);
+		        			 System.out.print("CONFIRMACION DE INGRESO (y/n): ");
+		        			 opt=scanner.next().charAt(0);
+		                    // Llamar método generar activos
+	                	} while(opt!='Y');
+	                	
+	                	// Si confirma los datos
+	                	aDAO.generarMisActivos(connection,tipoA,nom,cant); // No estoy seguro de este llamado teniendo en cuenta lo que hago dentro de la funcion
 	                	break;
 	                }
 	                case 6:{
@@ -156,7 +177,7 @@ public class aplicacionDeEscritorio {
 	    
 	   //cierro la conexion:
 	   connection.close();
-	    }
+	   scanner.close();	    }
 
 	}
 
