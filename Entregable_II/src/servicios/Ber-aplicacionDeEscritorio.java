@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 import clasesDAO.*;
-import modelo_clases.Moneda;
+import modelo_clases.*;
 
 
 public class aplicacionDeEscritorio {
@@ -65,11 +65,11 @@ public class aplicacionDeEscritorio {
 	                	  
 	                	 System.out.println("Ingerese tipo de moneda (C: cripto, F: fiducidiaria)");
 	                     //MODIFICAR --> EL USUARIO SOLO PUEDE PODER INGRESAR DOS VALORES, SINO ERROR --> hacer un while 
-	                	 tipo= scanner.next().toUpperCase();
+	                	 tipo= scanner.next();
 	                     System.out.println("Ingerese nombre de moneda");
-                    	 nombre= scanner.next().toUpperCase();
+                    	 nombre= scanner.next();
                     	 System.out.println("Ingerese nomenclatura de moneda");
-                    	 nomenclatura= scanner.next().toUpperCase();
+                    	 nomenclatura= scanner.next();
                     	 System.out.println("Ingerese valor en dolar de la moneda");
                     	 valorEnDolar= scanner.nextDouble();
                     	 
@@ -101,7 +101,7 @@ public class aplicacionDeEscritorio {
                         	 System.out.println("Volatilidad: " +  m.getVolatilidad());
                         }
                         System.out.println("¿Los datos ingresados son correctos? (S/N)");
-                        confirma= scanner.next().toUpperCase();
+                        confirma= scanner.next();
 	                  }
 	                
 	                  // Llamar método de crearMoneda de monedaDAO enviandole el objeto m
@@ -122,32 +122,31 @@ public class aplicacionDeEscritorio {
 	                }
 	                case 4:{
 	                    // Llamar método listar stock
-	                	System.out.println("---Stock disponible de criptomonedas:");
 	                	mDAO.listarStock(connection);
 	                	break;
 	                }
 	                case 5:{
-	                    // Llamar método generar activos
-	                	String opt;
+	                	char opt;
 	                	// Si las declaraba dentro del do-while me salia error
 	                	String tipoA;
 	                	String nom;
 	                	double cant;
 	                	do {
 	                		System.out.print("Tipo de activo a generar (FIAT/CRIPTO): ");
-	              		    tipoA = scanner.next().toUpperCase();	              		  
+	              		    tipoA = scanner.nextLine().toUpperCase();	              		  
 	              		    System.out.print("NOMENCLATURA: ");
-	              		    nom = scanner.next().toUpperCase();	              		  
+	              		    nom = scanner.nextLine().toUpperCase();	              		  
 	              		    System.out.print("CANTIDAD: ");
 	              		    cant= scanner.nextDouble();
 	              		   System.out.println("-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
 	              		     System.out.println("Activo tipo " + tipoA);
 		        			 System.out.println("Nomenclatura: " + nom);
 		        			 System.out.println("Cantidad: " + cant);
+		        			 System.out.println("Activo "+tipoA);
 		        			 System.out.print("CONFIRMACION DE INGRESO (y/n): ");
-		        			 opt=scanner.next().toUpperCase();
+		        			 opt=scanner.next().charAt(0);
 		                    // Llamar método generar activos
-	                	} while(! opt.equals("Y"));
+	                	} while(opt!='Y');
 	                	
 	                	// Si confirma los datos
 	                	aDAO.generarMisActivos(connection,tipoA,nom,cant); // No estoy seguro de este llamado teniendo en cuenta lo que hago dentro de la funcion
@@ -160,32 +159,12 @@ public class aplicacionDeEscritorio {
 	                }
 	                case 7:{
 	                    // Llamar método simular compra
-	                	String cripto;
-	                	String fiat;
-	                	double monto;
-	                	System.out.println("Ingerese NOMENCLATURA de criptomoneda a comprar");
-	                	cripto= scanner.next().toUpperCase();
-	                	System.out.println("Ingerese NOMENCLATURA de fiat con la que va a comprar");
-		                fiat= scanner.next().toUpperCase();
-	                    System.out.println("Ingerese cantidad de "+fiat+" con la que va a comprar");
-	                    monto= scanner.nextDouble();
-	                    
-	                    aDAO.comprarCripto(connection, cripto, fiat, monto);
+	                   
 	                	break;
 	                }
 	                case 8:{
-	                    // Llamar método simular swap
-	                	String criptoA;
-	                	String criptoB;
-	                	double cant;
-	                	System.out.println("Ingerese NOMENCLATURA de criptomoneda a convertir");
-	                	criptoA= scanner.next().toUpperCase();
-	                	System.out.println("Ingerese cantidad de "+criptoA+" para swapear");
-	                    cant= scanner.nextDouble();
-	                	System.out.println("Ingerese NOMENCLATURA de criptomoneda esperada");
-	                	criptoB= scanner.next().toUpperCase();
-	                    
-	                    aDAO.swap(connection, criptoA, cant, criptoB);
+	                    // Llamar método simular stock
+	                   
 	                	break;
 	                }
 	                case 0:
@@ -198,7 +177,7 @@ public class aplicacionDeEscritorio {
 	    
 	   //cierro la conexion:
 	   connection.close();
-	    }
+	   scanner.close();	    }
 
 	}
 

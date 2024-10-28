@@ -1,6 +1,7 @@
 package clasesDAO;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -23,7 +24,7 @@ public class MonedaDAO {
 	  
   }
 	
-  public static void creacionDeTablasEnBD(Connection connection) throws SQLException {
+  public static void creacionTablas(Connection connection) throws SQLException {
     Statement stmt;
     stmt = connection.createStatement();
     //creo tabla Moneda:
@@ -36,14 +37,7 @@ public class MonedaDAO {
 	+ " VOLATILIDAD	REAL     NULL, "
 	+ " STOCK	REAL     NULL "  + ")";
 	stmt.executeUpdate(sql);
-
-	//creo tabla Transaccion
-	sql = "CREATE TABLE TRANSACCION" 
-	+ "(" 
-	+ " RESUMEN VARCHAR(1000)   NOT NULL, "
-	+ " FECHA_HORA		DATETIME  NOT NULL " + ")";
-	stmt.executeUpdate(sql);
-	stmt.close();
+	
 }
   
   public void crearMoneda(Connection connection, Moneda m) throws SQLException {
@@ -58,7 +52,7 @@ public class MonedaDAO {
 	  else {
 		  //si es tipo fiat: stock=volatilidad=null
 		  sql= "INSERT INTO MONEDA (TIPO, NOMBRE, NOMENCLATURA, VALOR_DOLAR, VOLATILIDAD, STOCK)"
-			  		+ " VALUES('"+m.getTipo()+"', '"+m.getNombre()+"', '"+m.getNomenclatura()+"', '"+m.getValorEnDolar()+"', NULL, NULL);";
+			  		+ " VALUES('"+m.getTipo()+"', '"+m.getNombre()+"', '"+m.getNomenclatura()+"', '"+m.getValorEnDolar()+"', NULL , NULL);";
 	  }
 	  stmt.executeUpdate(sql);
 	  stmt.close();			  
@@ -85,8 +79,6 @@ public class MonedaDAO {
     			  " | Volatilidad: "+ rs.getString("VOLATILIDAD")+ 
     			  " | Stock: "+ rs.getString("STOCK") );
     	  
-    	  
-    	  
       }
       
 	  stmt.close();
@@ -96,16 +88,36 @@ public class MonedaDAO {
 public void generarStock(Connection connection) throws SQLException {
 	  // De manera aleatoria genera una cantidad de monedas disponibles para las criptos de la billetera
 	
-	  Statement stmt;
-	  stmt = connection.createStatement();
+	  PreparedStatement p_sent;
+	  String sql = "UPDATE MONEDA SET STOCK=? WHERE NOMENCLATURA = ?";
+	  p_sent = connection.prepareStatement(sql);
+
+	  //obtengo lista de nomenclaturas de cripto para ITERAR sobre esta:
+	  Statement stmt = connection.createStatement();
+	  ResultSet rs = stmt.executeQuery("SELECT NOMENCLATURA FROM MONEDA WHERE TIPO = 'C'");
 	  
-	  // Genera un stock aleatorio entre 0 y 1000 para cada criptomoneda.
-	  //Solo agrega stock a las filas de monedas que son CRIPTOMONEDAS (las fiat no poseen stock)
-	  String sql = "UPDATE MONEDA SET STOCK = " + Math.random() * 1000 + " WHERE TIPO = 'C'";
-	    
-	  stmt.executeUpdate(sql);
+	  String nom;
+	  //itero sobre las distintas nomenclaturas para modificar su STOCK:
+	  while(rs.next()) {
+		 
+		  nom = rs.getString("NOMENCLATURA");
+		  
+		  //genero random  
+		  double randomStock = Math.random() * 1000; // Genera un valor aleatorio distinto
+		  
+		  //agrego el valor random al STOCK de NOMENCLATURA (nom):
+		  p_sent.setDouble(1, randomStock);
+		  p_sent.setString(2, nom);
+		  p_sent.executeUpdate();
+		  
+	  }
 	  
+	// Cierra los recursos
+	  rs.close();
 	  stmt.close();
+	  p_sent.close();
+		
+	  
 }
 
 public void listarStock(Connection connection) throws SQLException {
@@ -114,15 +126,14 @@ public void listarStock(Connection connection) throws SQLException {
 	 //muestra en pantalla información del stock disponibles de criptomonedas, ordenadas por nomenclatura.
    
 	 //consulta para obtener la tabla moneda SOLO LAS CRIPTOS ordenadas por nomeclatura:
-	  String sql= "SELECT * FROM moneda WHERE TIPO = 'C' ORDER BY nomenclatura";
-			  
+	  String sql= "SELECT * FROM MONEDA WHERE TIPO = 'C' ORDER BY NOMENCLATURA";
     //se ejecuta la consulta:
 	  ResultSet rs= stmt.executeQuery(sql) ;
     
     // se recorre el ResultSet y mostramos los datos.
     while (rs.next()) {
         // imprimo datos
-  	  System.out.println( rs.getString("MONEDA")+ rs.getString("nomenclatura")+ " STOCK DISPONIBLE: "+ rs.getString("STOCK") );
+  	  System.out.println( rs.getString("NOMBRE")+" |\t "+ rs.getString("NOMENCLATURA")+" |\t "+ " STOCK DISPONIBLE: "+ rs.getString("STOCK") );
     }
     
 	  stmt.close();

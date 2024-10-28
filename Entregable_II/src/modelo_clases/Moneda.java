@@ -30,13 +30,7 @@ public class Moneda {
 			this.volatilidad= -1;
 		}
 		
-		//preguntas: que pongo en stock en el CONSTRUCTOR cuando leo datos por teclado?
-		//lo mismo para volatilidad y adema seta bien q este en esta clase? porq es solo para cripot creo
-		// sino puedo hacer un constructor para cripto (que incluya volatilidad) y otro
-		// para fiat (que no lo incluya)?
-		
-		//para fiat no hay stock (va null en la tabla)
-		//para cripto si hay stock
+	
 		
 		public String getTipo() {
 			return tipo;
