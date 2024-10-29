@@ -20,7 +20,7 @@ public class ActivoDAO {
 		
 	}
  
-	public static void creacionTablas(Connection connection) throws SQLException {
+	public static void crearTablas(Connection connection) throws SQLException {
 	    Statement stmt;
 	    stmt = connection.createStatement();
 	  
@@ -123,6 +123,27 @@ public class ActivoDAO {
 	  }
 
 
+	public void listarMisActivos(Connection connection) throws SQLException {
+			Statement stmt;
+			stmt= connection.createStatement();	  
+			  
+			String sql= "SELECT * FROM ACTIVO_FIAT INNER JOIN ACTIVO_CRIPTO ORDER BY CANTIDAD";  
+		    //se ejecuta la consulta:
+			  ResultSet rs= stmt.executeQuery(sql);
+		    
+		    // se recorre el ResultSet y mostramos los datos.
+		    while (rs.next()) {
+		      // Imprimo los datos que estaran ordenados por CANTIDAD
+		  	  System.out.println(rs.getString("NOMENCLATURA")+"\t|"+ rs.getString("CANTIDAD"));
+		    }
+		    
+		    
+		    stmt.close();
+		    rs.close();
+		  
+		}	  
+	  
+	  
 	private boolean existeActivoCripto (Connection connection, String nomenclaturaCripto ) throws SQLException {
 		  //verifica si existe el activo cripto pasado como parametro en la BD
 	        String sql;

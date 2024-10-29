@@ -5,10 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
+import java.util.List;
 
 import modelo_clases.Moneda;
 
-public class MonedaDAO {
+public class MonedaDAO implements MonedaDAO, Comparator {
 //esta clase contiene los metodos para acceder a la BD de criptomonedas
 	
 //PREGUNTAR SI LA CLASE SE LLAMARIA gestorDAO O monedaDAO
@@ -23,8 +25,9 @@ public class MonedaDAO {
   public MonedaDAO() {
 	  
   }
-	
-  public static void creacionTablas(Connection connection) throws SQLException {
+  
+  
+  public static void crearTablaMoneda(Connection connection) throws SQLException {
     Statement stmt;
     stmt = connection.createStatement();
     //creo tabla Moneda:
@@ -39,6 +42,8 @@ public class MonedaDAO {
 	stmt.executeUpdate(sql);
 	
 }
+  
+   
   
   public void crearMoneda(Connection connection, Moneda m) throws SQLException {
 	  Statement stmt;
@@ -59,7 +64,30 @@ public class MonedaDAO {
 			  
   }
   
-  public void listarMonedas(Connection connection) throws SQLException {
+  public static LinkedList<Moneda> obtenerDatosMoneda(Connection connection) throws SQLException {
+	  Statement stmt;
+	  stmt = connection.createStatement();
+	  
+	  String sql= "SELECT * FROM moneda ORDER BY nomenclatura";
+      //se ejecuta la consulta:
+	  ResultSet rs= stmt.executeQuery(sql);
+	  
+	  //creo lista a retornar:
+	  LinkedList<Moneda> listaMonedas = new LinkedList<Moneda>();
+	  
+	  while (rs.next()) {
+          // cargo datos
+		  Moneda m = new Moneda(rs.getString("TIPO"), rs.getString("NOMBRE"), rs.getString("NOMENCLATURA"), rs.getDouble("VALOR_DOLAR"), rs.getDouble("STOCK"), rs.getInt("VOLATILIDAD") );
+    	  //agrego moneda a la lista:
+		  listaMonedas.add(m);
+      }
+	  
+	  return listaMonedas;
+  }
+  
+  
+  //ESTE METODO HAY Q SACARLO PERO LO GUARDO X LAS DUDA !!!!!!!!!!!!!!!!!!!!!!!!
+  public LinkedList listarMonedas(Connection connection) throws SQLException {
 	  Statement stmt;
 	  stmt = connection.createStatement();
 	  //Muestra en pantalla información de las monedas disponibles, ordenadas por nomenclatura.
@@ -80,6 +108,7 @@ public class MonedaDAO {
     			  " | Stock: "+ rs.getString("STOCK") );
     	  
       }
+      // crear objeto moneda con los datos e imprimirla en el MAIN
       
 	  stmt.close();
   }
@@ -120,6 +149,7 @@ public void generarStock(Connection connection) throws SQLException {
 	  
 }
 
+//ESTE METODO HAY Q SACARLO PERO LO GUARDO X LAS DUDA !!!!!!!!!!!!!!!!!!!!!!!!
 public void listarStock(Connection connection) throws SQLException {
 	  Statement stmt;
 	  stmt = connection.createStatement();
@@ -135,6 +165,7 @@ public void listarStock(Connection connection) throws SQLException {
         // imprimo datos
   	  System.out.println( rs.getString("NOMBRE")+" |\t "+ rs.getString("NOMENCLATURA")+" |\t "+ " STOCK DISPONIBLE: "+ rs.getString("STOCK") );
     }
+    //extraer todos los datos, y imprimir los necesarios en el MAIN
     
 	  stmt.close();
 }
