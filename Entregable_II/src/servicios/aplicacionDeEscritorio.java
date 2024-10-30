@@ -1,22 +1,27 @@
 package servicios;
 
+
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-import clasesDAO.*;
-import modelo_clases.Moneda;
-
+import modelo_clases.*;
+import clasesDAOjdbc.*;
 
 public class aplicacionDeEscritorio {
 
-	// Declaración de Scanner como variable global
-     private static Scanner scanner = new Scanner(System.in);
+	
 	
 	public class Main {
 	    public static void main(String[] args) throws SQLException {
+	    	
+	    	// Declaración de Scanner como variable global
+	         Scanner scanner = new Scanner(System.in);
+	    	
 	    	
 	    	//crear objeto Connection
 	    	Connection connection=null;
@@ -29,12 +34,12 @@ public class aplicacionDeEscritorio {
 	    	 }
 
 	    	//creo objetos DAO --> lo hago aca afuera para q queden como variables globales
-	  	   MonedaDAO mDAO = new MonedaDAO();
-	  	   ActivoDAO aDAO = new ActivoDAO();
+	  	   MonedaDAOjdbc mDAOjdbc = new MonedaDAOjdbc();
+	  	   ActivoDAOjdbc aDAOjdbc = new ActivoDAOjdbc();
 	  	   
 	  	 
 	       // Scanner scanner = new Scanner(System.in);
-            crearTablas();
+            crearTablas (connection,  aDAOjdbc, mDAOjdbc);
             
 	        int option=1;
 	        do {
@@ -48,48 +53,49 @@ public class aplicacionDeEscritorio {
 	            System.out.println("7. Simular compra ");
 	            System.out.println("8. Simular swap ");
 	            System.out.println("0. Salir");
+	            System.out.print("Opcion seleccionada: ");
 	            option = scanner.nextInt();
 	            
 	            switch (option) {
 	                case 1: {
-	                	 crearMoneda( connection,  mDAO);
+	                	 crearMoneda( connection,  mDAOjdbc,  scanner);
 	                	     break;
 	                }
 	                case 2: {
 	                	// Llamar método para listar moneda
-	                	listarMonedas(connection,  mDAO);
+	                	listarMonedas(connection,  mDAOjdbc);
 	                	
 	                
 	                    break;
 	                }
 	                case 3: {
 	                    // Llamar a metodo para generar stock
-	                	generarStock(connection,  mDAO);
+	                	generarStock(connection,  mDAOjdbc);
 	                	break;
 	                }
 	                case 4:{
 	                    // Llamar método listar stock
-	                	listarStock(connection,  mDAO);
+	                	listarStock(connection,  mDAOjdbc);
 	                	break;
 	                }
 	                case 5:{
 	                    // Llamar método generar activos
-	                	generarActivos( connection,  aDAO);
+	                	generarActivos( connection,  aDAOjdbc, scanner);
 	                		break;
 	                }
 	                case 6:{
 	                    // Llamar método listar activos
-	                   
+	                   listarActivos(connection, aDAOjdbc, scanner);
 	                	break;
 	                }
 	                case 7:{
 	                    // Llamar método simular compra
-	                	simularCompra( connection,  aDAO);
+	                	simularCompra( connection,  aDAOjdbc, scanner);
 	                	break;
 	                }
 	                case 8:{
 	                    // Llamar método simular swap
-	                	simularSwap( connection,  aDAO);
+	                	simularSwap( connection,  aDAOjdbc, scanner);
 	                	break;
 	                }
 	                case 0:
@@ -109,16 +115,17 @@ public class aplicacionDeEscritorio {
 	
 //--------------------------METODOS
 	
-private static void crearTablas(Connection connection, ActivoDAO aDAO, MonedaDAO mDAO) {
+private static void crearTablas(Connection connection, ActivoDAOjdbc aDAO, MonedaDAOjdbc mDAO) {
 	
 	 
 	  //creo las tablas 
 	  //mDAO.crearTablaMoneda(connection);
 	   //aDAO.crearTablas(connection);
+	System.out.print("Tablas 'MONEDA', 'ACTIVO_FIAT', 'ACTIVO_CRIPTO' Y 'TRANSACCION' creadas correctamente");
 	 
 	      }
 	
-private static void crearMoneda(Connection connection, MonedaDAO mDAO) {
+private static void crearMoneda(Connection connection, MonedaDAOjdbc mDAO, Scanner scanner) throws SQLException {
 	Moneda m=null;
 	 String confirma="N";
 	 String tipo;
@@ -133,21 +140,21 @@ private static void crearMoneda(Connection connection, MonedaDAO mDAO) {
 	 
  while (confirma.equals("N")) {
 	  
-	 System.out.println("Ingerese tipo de moneda (C: cripto, F: fiducidiaria)");
+	 System.out.print("Ingerese tipo de moneda (C: cripto, F: fiducidiaria): ");
     //MODIFICAR --> EL USUARIO SOLO PUEDE PODER INGRESAR DOS VALORES, SINO ERROR --> hacer un while 
 	 tipo= scanner.next().toUpperCase();
-    System.out.println("Ingerese nombre de moneda");
+    System.out.print("Ingerese nombre de moneda:");
 	 nombre= scanner.next().toUpperCase();
-	 System.out.println("Ingerese nomenclatura de moneda");
+	 System.out.print("Ingerese nomenclatura de moneda:");
 	 nomenclatura= scanner.next().toUpperCase();
-	 System.out.println("Ingerese valor en dolar de la moneda");
+	 System.out.print("Ingerese valor en dolar de la moneda:");
 	 valorEnDolar= scanner.nextDouble();
 	 
 	 if (tipo.equals("C")) {
 		 //caso moneda cripto, pido los datos volatilidad y stock
-		 System.out.println("Ingerese volatilidad de la criptomoneda (valor entre 0 y 100)");
+		 System.out.print("Ingerese volatilidad de la criptomoneda (valor entre 0 y 100): ");
    	 volatilidad= scanner.nextInt();
-   	 System.out.println("Ingerese stock de la criptomoneda");
+   	 System.out.print("Ingerese stock de la criptomoneda: ");
    	 stock= scanner.nextDouble();
    	// creo el tipo moneda con los datos ingresados
    	  m = new Moneda(tipo, nombre, nomenclatura, valorEnDolar, stock, volatilidad);
@@ -170,7 +177,7 @@ private static void crearMoneda(Connection connection, MonedaDAO mDAO) {
    	 System.out.println("Stock: " +  m.getStock());
    	 System.out.println("Volatilidad: " +  m.getVolatilidad());
      }
-   System.out.println("¿Los datos ingresados son correctos? (S/N)");
+   System.out.print("¿Los datos ingresados son correctos? (S/N): ");
    confirma= scanner.next().toUpperCase();
   }
 
@@ -179,7 +186,7 @@ private static void crearMoneda(Connection connection, MonedaDAO mDAO) {
 
 }
 
-private static void listarMonedas(Connection connection, MonedaDAO mDAO) {
+private static void listarMonedas(Connection connection, MonedaDAOjdbc mDAO) throws SQLException {
 	LinkedList<Moneda> monedas = new LinkedList<Moneda>();
 	monedas.addAll(mDAO.obtenerDatosMoneda(connection));
 	for (Moneda m: monedas) {
@@ -192,30 +199,55 @@ private static void listarMonedas(Connection connection, MonedaDAO mDAO) {
 	}
   }
 
-private static void generarStock(Connection connection, MonedaDAO mDAO) {
+private static void generarStock(Connection connection, MonedaDAOjdbc mDAO) throws SQLException {
 	mDAO.generarStock(connection);
 	System.out.println("Stock de criptomonedas generado automaticamente en forma aleatoria");
 
   }
 
-private static void listarStock(Connection connection, MonedaDAO mDAO) {
+private static void listarStock(Connection connection, MonedaDAOjdbc mDAO) throws SQLException {
 	LinkedList<Moneda> monedas = new LinkedList<Moneda>();
 	monedas.addAll(mDAO.obtenerDatosMoneda(connection));
 	System.out.println("---Stock disponible de criptomonedas:");
 	for (Moneda m: monedas) {
+		//solo imprime stock de criptomonedas (son las unicas monedas que tienen STOCK)
+		if (m.getTipo().equals("C")) {
 		System.out.println("Tipo: "+ m.getTipo()+ 
   			  " | Nombre: "+ m.getNombre()+ 
   			  " | Stock: "+ m.getStock());
+	   }
+	}	
+  }
+
+private static void listarActivos(Connection connection, ActivoDAOjdbc aDAO, Scanner scanner) throws SQLException {
+	
+	LinkedList<Activo> activos = new LinkedList<Activo>();
+	activos.addAll(aDAO.obtenerDatosActivos(connection));
+	System.out.println("Ingrese como quisiera ver el listado");
+	System.out.println("- Por nomenclatura -> N");
+	System.out.println("- Por cantidad -> C");
+	System.out.print("Su opción: "); // El cursor se queda en esta línea
+	char opt = scanner.next().toUpperCase().charAt(0); //Me quedo con el primer caracter si es que el usuario escribe nom,NOM,cant, Canti, etc
+	if(opt=='N') { // Ordeno por nomenclatura
+		Collections.sort(activos, new ComparadorNomenclatura());
+		
 	}
+	else { // Ordeno por cantidad, si no elige opcion o responde incorrectamente, se ordenara por defecto por cantidad
+		Collections.sort(activos, new ComparadorCantidad());
+	}
+	System.out.println("---Listado de activos:");
+	System.out.println("NOMENCLATURA\t|\tCANTIDAD");
+	for(Activo a : activos) {
+		System.out.println(a.getNomenclatura()+"\t|\t"+a.getCantidad());		
+	}
+	
   }
-private static void listarActivos(Connection connection, ActivoDAO aDAO) {
-	//s
-  }
-private static void generarActivos(Connection connection, ActivoDAO aDAO) {
+private static void generarActivos(Connection connection, ActivoDAOjdbc aDAO, Scanner scanner) throws SQLException {
 	String opt;
 	// Si las declaraba dentro del do-while me salia error
 	String tipoA;
 	String nom;
+
 	double cant;
 	do {
 		System.out.print("Tipo de activo a generar (FIAT/CRIPTO): ");
@@ -224,7 +256,7 @@ private static void generarActivos(Connection connection, ActivoDAO aDAO) {
 		    nom = scanner.next().toUpperCase();	              		  
 		    System.out.print("CANTIDAD: ");
 		    cant= scanner.nextDouble();
-		   System.out.println("-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+		   System.out.println("---------------");
 		     System.out.println("Activo tipo " + tipoA);
 		 System.out.println("Nomenclatura: " + nom);
 		 System.out.println("Cantidad: " + cant);
@@ -232,27 +264,57 @@ private static void generarActivos(Connection connection, ActivoDAO aDAO) {
 		 opt=scanner.next().toUpperCase();
         // Llamar método generar activos
 	} while(! opt.equals("Y"));
-	
+	Activo act = new Activo(nom,cant);
 	// Si confirma los datos
-	aDAO.generarMisActivos(connection,tipoA,nom,cant); // No estoy seguro de este llamado teniendo en cuenta lo que hago dentro de la funcion
+	aDAO.generarMisActivos(connection,tipoA,act); // No estoy seguro de este llamado teniendo en cuenta lo que hago dentro de la funcion
 
   }
-private static void simularCompra(Connection connection, ActivoDAO aDAO) {
-	String cripto;
-	String fiat;
-	double monto;
-	System.out.println("Ingerese NOMENCLATURA de criptomoneda a comprar");
-	cripto= scanner.next().toUpperCase();
-	System.out.println("Ingerese NOMENCLATURA de fiat con la que va a comprar");
-    fiat= scanner.next().toUpperCase();
-    System.out.println("Ingerese cantidad de "+fiat+" con la que va a comprar");
-    monto= scanner.nextDouble();
-    
-    aDAO.comprarCripto(connection, cripto, fiat, monto);
+private static void simularCompra(Connection connection, ActivoDAOjdbc aDAO, Scanner scanner) throws SQLException {
+	String cripto="";
+	String fiat="";
+	double monto=0;
+	String opcion="N";
+	while (! opcion.equals("S") ) {
+		System.out.print("Ingerese NOMENCLATURA de criptomoneda a comprar: ");
+		cripto= scanner.next().toUpperCase();
+		System.out.print("Ingerese NOMENCLATURA de fiat con la que va a comprar: ");
+	    fiat= scanner.next().toUpperCase();
+	    System.out.print("Ingerese cantidad de "+fiat+" con la que va a comprar: ");
+	    monto= scanner.nextDouble();
+	    
+	    System.out.println("Confirmacion de la operacion");
+		System.out.println("Usted va a comprar "+cripto+" con "+monto+fiat);
+		System.out.println("¿Confirma la operacion? (S/N)");
+		opcion= scanner.next().toUpperCase();
+		if (opcion.equals("N")) {
+			System.out.println("---------------Realice la operacion nuevamente");
+		}
+	}
+    switch ( aDAO.comprarCripto(connection, cripto, fiat, monto) ) {
+    case 1: 
+    	System.out.println("ERROR: la moneda "+cripto+" ingresada no existe en la BD");
+        break;
+    case 2: 
+    	System.out.println("ERROR: la moneda "+fiat+" ingresada no existe en la BD");
+        break;
+    case 3: 
+    	System.out.println("ERROR: el monto ingresado a comprar es mayor al stock disponible para "+cripto);
+        break;
+    case 4: 
+		System.out.println("ERROR: usted no posee saldo suficiente de la moneda "+fiat+" para realizar la operacion");
+    	break;
+    	
+    default:
+    	System.out.println("------------------------------------------------------------ ");
+    	System.out.println("operacion realizada con exito ");
+    	System.out.println("Usted compro "+ aDAO.criptoAComprar(connection, cripto, fiat, monto) +" "+cripto+" con "+monto+" "+fiat );
+    	System.out.println("------------------------------------------------------------ ");
+    	break;
+    }
 
   }
 
-private static void simularSwap(Connection connection, ActivoDAO aDAO) {
+private static void simularSwap(Connection connection, ActivoDAOjdbc aDAO, Scanner scanner) throws SQLException {
 
 	String criptoA;
 	String criptoB;

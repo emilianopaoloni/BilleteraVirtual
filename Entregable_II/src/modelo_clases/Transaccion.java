@@ -1,5 +1,4 @@
 package modelo_clases;
-package modelo_clases;
 import java.time.LocalDateTime;
 
 public class Transaccion {
