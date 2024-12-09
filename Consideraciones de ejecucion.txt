@@ -1,0 +1,9 @@
+Cosas a tener en cuenta para la ejecución de la aplicación:
+
+-La aplicación crea una BD y sus respectivas tablas. En la tabla moneda, se crea automáticamente las monedas disponibles para utilizar en la aplicacion: ARS, USD, BTC, DOGE, USDC, USDT y ETH. 
+
+-Cada vez que se presiona el botón "Generar Datos de Prueba" se le agrega al usuario actual una suma de 200000ARS y 1000USD, además se genera un STOCK random para cada criptomoneda disponibles. La idea de esta función, es que, además de generar un STOCK a las criptomonedas, les proporcione a ustedes una suma de moneda fiat (USD y ARS) para que puedan realizar compras de criptomonedas.
+
+-En el cuadro de activos del usuario, las cantidades de cada moneda están en la moneda correspondiente.
+
+-Antes de presionar cualquier botón de "Comprar", debe esperar a que se carguen las cotizaciones de cada criptomoneda.
